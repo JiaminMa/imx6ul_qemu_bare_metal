@@ -1,3 +1,7 @@
+/*!
+ * @author  MJm
+ * @date    2020/1/22
+ */
 #include "imx_uart.h"
 
 static imx_uart_t *imx_uart0;
