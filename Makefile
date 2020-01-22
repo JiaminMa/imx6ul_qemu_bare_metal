@@ -20,7 +20,7 @@ run: $(objs)
 	${LD} -T 6ul_bare_metal.ld -o 6ul_bare_metal.elf $^
 	${OBJCOPY} -O binary -S 6ul_bare_metal.elf 6ul_bare_metal.bin
 	${OBJDUMP} -D -m arm 6ul_bare_metal.elf > 6ul_bare_metal.dis
-	../ubuntu-18.04_imx6ul_qemu_system/qemu/bin/qemu-system-arm -M mcimx6ul-evk   -show-cursor  -m 512M -kernel 6ul_bare_metal.elf \
+	./qemu/bin/qemu-system-arm -M mcimx6ul-evk   -show-cursor  -m 512M -kernel 6ul_bare_metal.elf \
  	-display sdl -serial mon:stdio \
  	-nic user -com 100ask -device sd-card
 
@@ -28,7 +28,9 @@ debug: $(objs)
 	${LD} -T 6ul_bare_metal.ld -o 6ul_bare_metal.elf $^
 	${OBJCOPY} -O binary -S 6ul_bare_metal.elf 6ul_bare_metal.bin
 	${OBJDUMP} -D -m arm 6ul_bare_metal.elf > 6ul_bare_metal.dis
-	../ubuntu-18.04_imx6ul_qemu_system/qemu/bin/qemu-system-arm -M mcimx6ul-evk -m 512M -nographic -kernel 6ul_bare_metal.elf -serial mon:stdio -s -S
+	./qemu/bin/qemu-system-arm -M mcimx6ul-evk   -show-cursor  -m 512M -kernel 6ul_bare_metal.elf \
+ 	-display sdl -serial mon:stdio \
+ 	-nic user -com 100ask -device sd-card -S -s
 
 %.o:%.c
 	${CC} $(CFLAGS) -c -o $@ $<

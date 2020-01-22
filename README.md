@@ -1,0 +1,2 @@
+- install arm-none-eabi- toolchain on your ubuntu.
+- make run
