@@ -9,7 +9,7 @@ CFLAGS 		:= -Wall -g -fno-builtin -gdwarf-2 -gstrict-dwarf -Iinclude
 LDFLAGS 	:= -g
 
 objs := start.o entry.o imx_uart.o qemu_print.o driver/imx_gpio.o driver/imx_i2c.o \
-		device/at24cxx.o
+		device/at24cxx.o driver/timer.o
 
 6ul_bare_metal.bin: $(objs)
 	${LD} -T 6ul_bare_metal.ld -o 6ul_bare_metal.elf $^

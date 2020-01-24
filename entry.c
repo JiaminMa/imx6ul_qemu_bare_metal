@@ -5,12 +5,13 @@
 #include <imx_uart.h>
 #include <imx6ul_iomuxc.h>
 #include <imx_gpio.h>
-#include <imx_i2c.h>
 #include <at24cxx.h>
+#include <timer.h>
 
 static void test_led(void);
 static void test_button(void);
 static void test_at24cxx(void);
+static void test_timer(void);
 
 static void delay()
 {
@@ -22,14 +23,15 @@ static void delay()
 void c_entry()
 {
     uart_init();
+    timer_init();
 
     printf("hello imx6ul bare metal:%x\n");
 
-    test_at24cxx();
 
     while(1) {
         //test_led();
         // test_button();
+        test_timer();
     }
 }
 
@@ -126,4 +128,14 @@ static void test_at24cxx()
     for (i = 0; i < 16; i++) {
         printf("%s: %d\n", __func__, buf[i]);
     }
+}
+
+static test_timer()
+{
+    timer_t timer;
+    timer_setto(&timer, 5000 * 1000);
+    printf("%s: before timerout\n", __func__);
+    while (timer_isto(&timer) == false);
+    printf("%s: after timerout\n", __func__);
+    while(1);
 }
