@@ -11,11 +11,11 @@ LDFLAGS 	:= -g
 objs := start.o \
 		entry.o \
 		driver/imx_uart.o \
-		device/qemu_print.o \
 		driver/imx_gpio.o \
 		driver/imx_i2c.o \
 		device/at24cxx.o \
-		driver/timer.o
+		device/qemu_print.o \
+		device/timer.o
 
 6ul_bare_metal.bin: $(objs)
 	${LD} -T 6ul_bare_metal.ld -o 6ul_bare_metal.elf $^
