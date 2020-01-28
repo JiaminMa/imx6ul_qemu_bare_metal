@@ -7,11 +7,14 @@
 #include <imx_gpio.h>
 #include <at24cxx.h>
 #include <timer.h>
+#include <sd_card.h>
+#include <imx_usdhc.h>
 
 static void test_led(void);
 static void test_button(void);
 static void test_at24cxx(void);
 static void test_timer(void);
+static void test_sdcard(void);
 
 static void delay()
 {
@@ -31,7 +34,9 @@ void c_entry()
     while(1) {
         //test_led();
         // test_button();
-        test_timer();
+        // test_timer();
+        // test_at24cxx();
+        test_sdcard();
     }
 }
 
@@ -91,30 +96,10 @@ static void test_at24cxx()
 {
     uint8_t i = 0, j = 0;
     uint8_t buf[16] = {0};
-
-    imx_i2c_t *i2c = (imx_i2c_t *)0x021A0000UL;
     at24cxx_t at24cxx;
-    at24cxx.i2c_host = (void *)i2c;    
-    at24cxx.set_send_mode = i2c_set_transmit_mode;
-    at24cxx.set_receive_mode = i2c_set_receive_mode;
-    at24cxx.start_bus = i2c_set_master;
-    at24cxx.stop_bus = i2c_set_slave;
-    at24cxx.wait_bus_idle = i2c_wait_bus_grant;
-    at24cxx.write_byte = i2c_write_byte;
-    at24cxx.read_byte = i2c_read_byte;
-    at24cxx.set_repeat_start = i2c_set_repeat_start;
-    at24cxx.set_transmit_ack = i2c_enable_transmit_ack;
-    at24cxx.disable_transmit_ack = i2c_disable_transmit_ack;
 
-    /* I2C1 SCL */
-    iomuxc_set_mux(IOMUXC_SW_MUX_CTL_PAD_GPIO1_IO02, MUX_MODE_ALT0);
-    /* I2C1 SDA */
-    iomuxc_set_mux(IOMUXC_SW_MUX_CTL_PAD_GPIO1_IO03, MUX_MODE_ALT0);
+    at24cxx_init(&at24cxx);
 
-    i2c_init(i2c);
-    i2c_set_clock(i2c, 0);
-    i2c_enable_int(i2c);
-    i2c_enable(i2c);
     for (i = 0; i < 16; i++) {
         at24cxx_write_byte(&at24cxx, i, i);
     }
@@ -128,14 +113,57 @@ static void test_at24cxx()
     for (i = 0; i < 16; i++) {
         printf("%s: %d\n", __func__, buf[i]);
     }
+    while(1);
 }
 
-static test_timer()
+static void test_timer()
 {
     timer_t timer;
     timer_setto(&timer, 5000 * 1000);
     printf("%s: before timerout\n", __func__);
     while (timer_isto(&timer) == false);
     printf("%s: after timerout\n", __func__);
+    while(1);
+}
+
+static void test_sdcard()
+{
+    sdcard_t sdcard;
+    imx_usdhc_t *usdhc = (imx_usdhc_t *)0x02190000;
+    uint8_t buf[512];
+    uint8_t buf2[512];
+    uint32_t i;
+    sdcard.host = usdhc;
+    sdcard.rca = 0x45670000;
+    sdcard.host_init = usdhc_init;
+    sdcard.send_cmd = usdhc_send_command;
+    sdcard.get_resp = usdhc_get_response;
+    sdcard.read_block = usdhc_read_block;
+    sdcard.write_block = usdhc_write_block;
+
+    printf("\ninit buf as 0\n");
+    for (i = 0; i < 16; i++) {
+        printf("%x ", buf[i]);
+    }
+    printf("\n");
+
+    sdcard_init(&sdcard);
+    sdcard_read_block(&sdcard, buf, 0);
+
+    printf("\nread sdcard before write\n");
+    for (i = 0; i < 16; i++) {
+        printf("%x ", buf[i]);
+        buf2[i] = buf[i] + 1;
+    }
+    printf("\n");
+    printf("write sdcard by add 1\n");
+    sdcard_write_block(&sdcard, buf2, 0);
+    sdcard_read_block(&sdcard, buf, 0);
+    printf("\nread sdcard after write\n");
+    for (i = 0; i < 16; i++) {
+        printf("%x ", buf[i]);
+    }
+    printf("\n");
+        
     while(1);
 }

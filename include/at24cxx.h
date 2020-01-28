@@ -23,6 +23,7 @@ typedef struct at24cxx_tag {
 
 extern void at24cxx_write_byte(at24cxx_t *, uint32_t , uint8_t);
 extern uint8_t at24cxx_read_byte(at24cxx_t *, uint32_t);
-extern void at24cxx_read(at24cxx_t *at24cxx, uint32_t , uint8_t *, uint32_t);
+extern void at24cxx_read(at24cxx_t *, uint32_t , uint8_t *, uint32_t);
+extern void at24cxx_init(at24cxx_t *);
 
 #endif
