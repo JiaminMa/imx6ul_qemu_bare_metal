@@ -54,4 +54,4 @@ debug: $(objs)
 	${CC}  $(CFLAGS) -c -o $@ $<
 
 clean:
-	rm -rf *.o *.elf *.bin *.dis driver/*.o
+	rm -rf *.o *.elf *.bin *.dis driver/*.o device/*.o

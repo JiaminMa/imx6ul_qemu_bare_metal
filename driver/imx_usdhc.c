@@ -295,6 +295,4 @@ bool usdhc_write_block(void *host, uint8_t *src, uint32_t blk_idx)
     usdhc->wtmk_lvl = 0x00000080;
 
     return usdhc_send_command(usdhc, CMD25, blk_idx);
-
-    return true;
 }

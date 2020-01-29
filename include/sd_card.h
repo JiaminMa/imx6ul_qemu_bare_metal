@@ -63,6 +63,7 @@ enum commands {
 #define SDR50_FREQ 7             /* 100000 in kHz */
 #define SDR104_FREQ 8            /* 200000 in kHz */
 
+#define SDCARD_DEBUG
 #if defined(SDCARD_DEBUG)
 #define SDCARD_TRACE printf
 #else
