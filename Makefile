@@ -5,7 +5,7 @@ LD = ${TOOL_CHAIN}ld
 OBJCOPY = ${TOOL_CHAIN}objcopy
 OBJDUMP = $(TOOL_CHAIN)objdump
 
-CFLAGS 		:= -Wall -g -fno-builtin -gdwarf-2 -gstrict-dwarf -Iinclude
+CFLAGS 		:= -Wall -g -fno-builtin -gdwarf-2 -gstrict-dwarf -Iinclude -mcpu=cortex-a7
 LDFLAGS 	:= -g
 
 objs := start.o \
@@ -17,7 +17,11 @@ objs := start.o \
 		device/at24cxx.o \
 		device/qemu_print.o \
 		device/timer.o \
-		device/sd_card.o
+		device/sd_card.o \
+		fatfs/diskio.o \
+		fatfs/ff.o \
+		fatfs/ffsystem.o \
+		fatfs/ffunicode.o
 
 6ul_bare_metal.bin: $(objs)
 	${LD} -T 6ul_bare_metal.ld -o 6ul_bare_metal.elf $^
@@ -39,6 +43,12 @@ nogui: $(objs)
 	${OBJDUMP} -D -m arm 6ul_bare_metal.elf > 6ul_bare_metal.dis
 	./qemu/bin/qemu-system-arm -M mcimx6ul-evk -m 512M -kernel 6ul_bare_metal.elf  -serial mon:stdio -nographic -sd test.img
 
+fatfs: $(objs)
+	${LD} -T 6ul_bare_metal.ld -o 6ul_bare_metal.elf $^
+	${OBJCOPY} -O binary -S 6ul_bare_metal.elf 6ul_bare_metal.bin
+	${OBJDUMP} -D -m arm 6ul_bare_metal.elf > 6ul_bare_metal.dis
+	./qemu/bin/qemu-system-arm -M mcimx6ul-evk -m 512M -kernel 6ul_bare_metal.elf  -serial mon:stdio -nographic -sd testfs.img
+
 debug: $(objs)
 	${LD} -T 6ul_bare_metal.ld -o 6ul_bare_metal.elf $^
 	${OBJCOPY} -O binary -S 6ul_bare_metal.elf 6ul_bare_metal.bin
@@ -54,4 +64,4 @@ debug: $(objs)
 	${CC}  $(CFLAGS) -c -o $@ $<
 
 clean:
-	rm -rf *.o *.elf *.bin *.dis driver/*.o device/*.o
+	rm -rf *.o *.elf *.bin *.dis driver/*.o device/*.o fatfs/*.o

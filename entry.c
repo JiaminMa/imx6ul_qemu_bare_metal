@@ -9,12 +9,14 @@
 #include <timer.h>
 #include <sd_card.h>
 #include <imx_usdhc.h>
+#include <ff.h>
 
 static void test_led(void);
 static void test_button(void);
 static void test_at24cxx(void);
 static void test_timer(void);
 static void test_sdcard(void);
+static void test_fatfs(void);
 
 static void delay()
 {
@@ -36,7 +38,8 @@ void c_entry()
         // test_button();
         // test_timer();
         // test_at24cxx();
-        test_sdcard();
+        // test_sdcard();
+        test_fatfs();
     }
 }
 
@@ -148,8 +151,11 @@ static void test_sdcard()
     printf("\n");
 
     sdcard_init(&sdcard);
-    sdcard_read_block(&sdcard, buf, 0);
-
+    sdcard_read_block(&sdcard, buf, 0x200);
+    for (i = 0; i < 16; i++) {
+        printf("%x ", buf[i]);
+    }
+    printf("\n");
     printf("\nread sdcard before write\n");
     for (i = 0; i < 16; i++) {
         printf("%x ", buf[i]);
@@ -163,7 +169,64 @@ static void test_sdcard()
     for (i = 0; i < 16; i++) {
         printf("%x ", buf[i]);
     }
-    printf("\n");
+    // printf("\n");
         
+    while(1);
+}
+
+static void dump_fatfs(FATFS *fatfs_p)
+{
+    printf("===========%s=========\n", __func__);
+    printf("    fs_type: %x        \n", fatfs_p->fs_type);
+    printf("    pdrv: %x           \n", fatfs_p->pdrv);
+    printf("    csize: %x          \n", fatfs_p->csize);
+    printf("    n_fats: %x         \n", fatfs_p->n_fats);
+    printf("    wflag: %x          \n", fatfs_p->wflag);
+    printf("    fsi_flag: %x       \n", fatfs_p->fsi_flag);
+    printf("    id: %x             \n", fatfs_p->id);
+    printf("    n_rootdir: %x      \n", fatfs_p->n_rootdir);
+    printf("    last_clst:%x       \n", fatfs_p->last_clst);
+    printf("    free_clst:%x       \n", fatfs_p->free_clst);
+    printf("    n_fatent:%x        \n", fatfs_p->n_fatent);
+    printf("    fsize:%x           \n", fatfs_p->fsize);
+    printf("    volbase:%x         \n", fatfs_p->volbase);
+    printf("    fatbase:%x         \n", fatfs_p->fatbase);
+    printf("    dirbase:%x         \n", fatfs_p->dirbase);
+    printf("    winsect:%x         \n", fatfs_p->winsect);
+    printf("======================\n");
+}
+
+
+static void test_fatfs()
+{
+    FATFS fs;
+    FIL file;
+    char buf[64];
+    char *test_str = "test fatfs string";
+    uint32_t len = 0;
+    FRESULT res = 0;
+
+    printf("%s entry\n", __func__);
+
+    res = f_mount(&fs,"0:",1); 
+    printf("%s f_mount res:%d\n", __func__, res);
+    dump_fatfs(&fs);
+
+    res = f_open(&file, "aa.txt", FA_READ);
+    printf("%s f_open res:%d\n", __func__, res);
+    f_read(&file, buf, 64, &len);
+    printf("%s read content: buf:%s\n", __func__, buf);
+    f_close(&file);
+
+    res = f_open(&file, "bb.txt", FA_CREATE_NEW | FA_WRITE);
+    f_write(&file, test_str, 64, &len);
+    f_close(&file);
+
+    res = f_open(&file, "bb.txt", FA_READ);
+    printf("%s f_open res:%d\n", __func__, res);
+    f_read(&file, buf, 64, &len);
+    printf("%s read content: buf:%s\n", __func__, buf);
+    f_close(&file);
+    
     while(1);
 }
